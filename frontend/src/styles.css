@@ -1,0 +1,364 @@
+/*
+ * Plain CSS. No framework by design.
+ *
+ * Every colour lives in the single :root block below, so the palette is a token
+ * swap rather than a rewrite. The design is a committed dark violet, so the
+ * light/dark pair the previous form UI carried has collapsed into one palette:
+ * light mode is deliberately gone, not accidentally broken.
+ *
+ * Layout is a fixed 352px column that narrows to 94vw. Only the column narrows;
+ * the keypad stays a 4-column grid at every width, which is why there are no
+ * breakpoints here any more.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg: #150a24;
+  --bg-gradient-top: #34145c;
+  --bg-gradient-mid: #1c0c30;
+  --bg-gradient-base: #150a24;
+
+  /* Keys */
+  --key-num: #2b1544;
+  --key-func: #3c1d5c;
+  --key-sci: #1f0f34;
+  --accent: #8b34de;
+  --accent-deep: #4a1a72;
+  --key-border: rgb(255 255 255 / 5%);
+  --key-border-op: rgb(255 255 255 / 14%);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-muted: #a98cc9;
+  --text-lilac: #dcbcf7;
+  --text-sci: #a889c9;
+  --text-footer: #8871a3;
+  --error: #ff9d7a;
+
+  --focus: #dcbcf7;
+
+  /* Geometry */
+  --column-width: 352px;
+  --column-gap: 18px;
+  --keypad-gap: 11px;
+  --key-height: 64px;
+  --key-radius: 20px;
+  --tile-radius: 9px;
+
+  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    var(--bg-gradient-top) 0%,
+    var(--bg-gradient-mid) 45%,
+    var(--bg-gradient-base) 100%
+  );
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------- page --- */
+
+.page {
+  width: var(--column-width);
+  max-width: 94vw;
+  margin: 0 auto;
+  padding: 24px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--column-gap);
+}
+
+/* Not `display: contents`: that can drop the <main> landmark from the
+   accessibility tree in older engines, and this page has only one landmark. */
+.page__main {
+  display: flex;
+  flex-direction: column;
+}
+
+.page__footer {
+  margin: 0;
+  text-align: center;
+  color: var(--text-footer);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+/* --------------------------------------------------------------- brand --- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+}
+
+.brand__identity {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/*
+ * The icon is drawn at 2x inside a 30px window: the source PNG carries ~25%
+ * white padding per side, so the crop is what keeps a white chip off a dark
+ * header.
+ */
+.brand__tile {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--tile-radius);
+  overflow: hidden;
+  display: block;
+  flex: none;
+}
+
+.brand__icon {
+  width: 60px;
+  height: 60px;
+  margin: -15px;
+  display: block;
+  max-width: none;
+}
+
+.brand__wordmark {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* Two slots, so the Help button lands beside the label without a re-layout. */
+.brand__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------- calculator --- */
+
+.calculator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--column-gap);
+}
+
+/* ------------------------------------------------------------- display --- */
+
+.display {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 8px;
+  /* Fixed height is what stops the keypad jumping between states. */
+  min-height: 132px;
+}
+
+.display__live {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+}
+
+.display__expression {
+  margin: 0;
+  min-height: 24px;
+  color: var(--text-muted);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* The rounded-result disclosure needs more characters than an operator does. */
+.display__expression--note {
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.display__value {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 66px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  text-align: right;
+  word-break: break-all;
+  transition: opacity 120ms ease;
+}
+
+.display__value--md {
+  font-size: 54px;
+}
+
+.display__value--sm {
+  font-size: 42px;
+}
+
+/* No spinner: the design dims the value instead, because a spinner makes the
+   display jump. aria-busy carries the same information to a screen reader. */
+.display__value--busy {
+  opacity: 0.5;
+}
+
+.display__error {
+  margin: 0;
+  color: var(--error);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: right;
+  text-wrap: pretty;
+}
+
+/* -------------------------------------------------------------- keypad --- */
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--keypad-gap);
+}
+
+.keypad:focus {
+  outline: none;
+}
+
+.key {
+  font-family: inherit;
+  font-weight: 500;
+  height: var(--key-height);
+  min-height: 44px;
+  border-radius: var(--key-radius);
+  border: 1px solid var(--key-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: filter 120ms ease, transform 80ms ease;
+}
+
+.key--wide {
+  grid-column: span 2;
+}
+
+.key--start {
+  justify-content: flex-start;
+  padding-left: 26px;
+}
+
+.key--digit {
+  background: var(--key-num);
+  color: var(--text-primary);
+  font-size: 26px;
+}
+
+.key--function {
+  background: var(--key-func);
+  color: var(--text-lilac);
+  font-size: 20px;
+}
+
+.key--sci {
+  background: var(--key-sci);
+  color: var(--text-sci);
+  font-size: 18px;
+}
+
+.key--operator {
+  background: var(--accent);
+  color: var(--text-primary);
+  font-size: 27px;
+  border-color: var(--key-border-op);
+}
+
+.key:hover:not(:disabled):not(.key--armed) {
+  filter: brightness(1.35);
+}
+
+.key:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* The armed operator inverts, which is the visual form of aria-pressed. */
+.key--armed {
+  background: var(--text-primary);
+  color: var(--accent);
+}
+
+.key--sci.key--armed {
+  color: var(--accent-deep);
+}
+
+.key:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/*
+ * The armed operator dims less than the rest when the operator row locks. Once
+ * the second operand is typed it stops being a control, but it is still the
+ * label for the operation that `=` is about to run, so it has to stay readable.
+ */
+.key--armed:disabled {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
