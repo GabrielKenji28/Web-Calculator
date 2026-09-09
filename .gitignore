@@ -1,3 +1,21 @@
+# Private working files and local agent artifacts — never committed
+prompts.md
+decisions.md
+PLAN.md
+Explanations.md
+.plans/
+.worktrees/
+.tools/
+.claude/
+
+# Frontend dependencies, builds, and coverage
+node_modules/
+frontend/dist/
+coverage/
+backend/coverage.out
+*.log
+.DS_Store
+
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
@@ -30,3 +48,6 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+KICKOFF_PROMPT.md
+AGENTS.md
+CLAUDE.md
