@@ -1,0 +1,2003 @@
+{
+  "schemaVersion": 1,
+  "operations": [
+    {
+      "name": "add",
+      "arity": 2,
+      "milestone": "core",
+      "operandLabels": [
+        "First number",
+        "Second number"
+      ]
+    },
+    {
+      "name": "subtract",
+      "arity": 2,
+      "milestone": "core",
+      "operandLabels": [
+        "First number",
+        "Second number"
+      ]
+    },
+    {
+      "name": "multiply",
+      "arity": 2,
+      "milestone": "core",
+      "operandLabels": [
+        "First number",
+        "Second number"
+      ]
+    },
+    {
+      "name": "divide",
+      "arity": 2,
+      "milestone": "core",
+      "operandLabels": [
+        "Dividend",
+        "Divisor"
+      ]
+    },
+    {
+      "name": "power",
+      "arity": 2,
+      "milestone": "advanced",
+      "operandLabels": [
+        "Base",
+        "Exponent"
+      ]
+    },
+    {
+      "name": "sqrt",
+      "arity": 1,
+      "milestone": "advanced",
+      "operandLabels": [
+        "Number"
+      ]
+    },
+    {
+      "name": "percentage",
+      "arity": 2,
+      "milestone": "advanced",
+      "operandLabels": [
+        "Percentage",
+        "Of value"
+      ]
+    }
+  ],
+  "requestPolicy": {
+    "rejectUnknownFields": true,
+    "requireSingleJSONObject": true,
+    "operationNamesCaseSensitive": true,
+    "operandType": "finite JSON number"
+  },
+  "numberPolicy": {
+    "representation": "IEEE 754 binary64",
+    "displaySignificantDigits": 12,
+    "normalizeNegativeZero": true,
+    "percentageFormula": "(percentage / 100) * base",
+    "zeroToZeroPower": 1,
+    "negativeBaseRequiresIntegerExponent": true
+  },
+  "errors": {
+    "INVALID_REQUEST": "Provide one JSON object with an operation and the required finite numeric operands.",
+    "UNKNOWN_OPERATION": "Operation is not supported.",
+    "DIVISION_BY_ZERO": "Cannot divide by zero.",
+    "NEGATIVE_SQRT": "Cannot take the square root of a negative number.",
+    "INVALID_POWER": "Zero cannot have a negative exponent, and negative bases require an integer exponent.",
+    "NON_FINITE_RESULT": "Calculation result is outside the finite number range.",
+    "INTERNAL_ERROR": "An unexpected server error occurred."
+  },
+  "cases": [
+    {
+      "id": "health",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "GET",
+        "path": "/health",
+        "headers": {},
+        "body": ""
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "status": "ok"
+        }
+      }
+    },
+    {
+      "id": "add-positive",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 12
+        }
+      }
+    },
+    {
+      "id": "subtract-positive",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"subtract\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 8
+        }
+      }
+    },
+    {
+      "id": "subtract-negative-result",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"subtract\",\"operands\":[2,10]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": -8
+        }
+      }
+    },
+    {
+      "id": "multiply-positive",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"multiply\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 20
+        }
+      }
+    },
+    {
+      "id": "divide-positive",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 5
+        }
+      }
+    },
+    {
+      "id": "multiply-negative",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"multiply\",\"operands\":[-6,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": -12
+        }
+      }
+    },
+    {
+      "id": "divide-two-negatives",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[-10,-2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 5
+        }
+      }
+    },
+    {
+      "id": "multiply-zero",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"multiply\",\"operands\":[0,123]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0
+        }
+      }
+    },
+    {
+      "id": "normalize-negative-zero",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"multiply\",\"operands\":[-0,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0
+        }
+      },
+      "expectedDisplay": "0"
+    },
+    {
+      "id": "add-decimals",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1.25,2.5]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 3.75
+        }
+      }
+    },
+    {
+      "id": "floating-point-addition",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[0.1,0.2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0.30000000000000004
+        }
+      },
+      "expectedDisplay": "0.3"
+    },
+    {
+      "id": "repeating-decimal",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[1,3]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0.3333333333333333
+        }
+      },
+      "expectedDisplay": "0.333333333333"
+    },
+    {
+      "id": "divide-by-zero",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[10,0]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "DIVISION_BY_ZERO",
+            "message": "Cannot divide by zero."
+          }
+        }
+      }
+    },
+    {
+      "id": "divide-by-negative-zero",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[10,-0]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "DIVISION_BY_ZERO",
+            "message": "Cannot divide by zero."
+          }
+        }
+      }
+    },
+    {
+      "id": "zero-divided-by-zero",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[0,0]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "DIVISION_BY_ZERO",
+            "message": "Cannot divide by zero."
+          }
+        }
+      }
+    },
+    {
+      "id": "addition-overflow",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1e308,1e308]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NON_FINITE_RESULT",
+            "message": "Calculation result is outside the finite number range."
+          }
+        }
+      }
+    },
+    {
+      "id": "subtraction-overflow",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"subtract\",\"operands\":[-1e308,1e308]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NON_FINITE_RESULT",
+            "message": "Calculation result is outside the finite number range."
+          }
+        }
+      }
+    },
+    {
+      "id": "multiplication-overflow",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"multiply\",\"operands\":[1e308,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NON_FINITE_RESULT",
+            "message": "Calculation result is outside the finite number range."
+          }
+        }
+      }
+    },
+    {
+      "id": "division-overflow",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"divide\",\"operands\":[1e308,1e-308]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NON_FINITE_RESULT",
+            "message": "Calculation result is outside the finite number range."
+          }
+        }
+      }
+    },
+    {
+      "id": "empty-body",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": ""
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "malformed-json",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1,2]"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "trailing-json",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1,2]} {}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "trailing-garbage",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1,2]} extra"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "null-body",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "null"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "array-body",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "[]"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "missing-operation",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operands\":[1,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "empty-operation",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"\",\"operands\":[1,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "null-operation",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":null,\"operands\":[1,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "nonnumeric-operation",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":123,\"operands\":[1,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "missing-operands",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\"}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "null-operands",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":null}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "object-operands",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":{\"a\":1,\"b\":2}}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "scalar-operands",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":1}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "empty-operands",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "missing-second-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "extra-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1,2,3]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "null-first-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[null,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "null-second-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1,null]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "numeric-string-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[\"1\",2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "nonnumeric-string-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[\"hello\",2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "boolean-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[true,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "object-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[{},2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "array-operand",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[[],2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "positive-input-overflow",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1e309,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "negative-input-overflow",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[-1e309,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "nan-token",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[NaN,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "infinity-token",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[Infinity,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "unknown-field",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[1,2],\"extra\":true}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "unknown-operation",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"modulo\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "UNKNOWN_OPERATION",
+            "message": "Operation is not supported."
+          }
+        }
+      }
+    },
+    {
+      "id": "operation-case-sensitive",
+      "milestone": "core",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"ADD\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "UNKNOWN_OPERATION",
+            "message": "Operation is not supported."
+          }
+        }
+      }
+    },
+    {
+      "id": "unexpected-server-error",
+      "milestone": "core",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"add\",\"operands\":[10,2]}"
+      },
+      "expected": {
+        "status": 500,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INTERNAL_ERROR",
+            "message": "An unexpected server error occurred."
+          }
+        }
+      },
+      "testFault": "unexpected_error"
+    },
+    {
+      "id": "power-positive",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[2,3]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 8
+        }
+      }
+    },
+    {
+      "id": "power-zero-to-zero",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[0,0]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 1
+        }
+      }
+    },
+    {
+      "id": "power-zero-base",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[0,3]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0
+        }
+      }
+    },
+    {
+      "id": "power-negative-exponent",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[2,-3]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0.125
+        }
+      }
+    },
+    {
+      "id": "power-fractional-exponent",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[9,0.5]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 3
+        }
+      }
+    },
+    {
+      "id": "power-negative-base-odd",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[-2,3]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": -8
+        }
+      }
+    },
+    {
+      "id": "power-negative-base-even",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[-2,2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 4
+        }
+      }
+    },
+    {
+      "id": "power-negative-base-negative-exponent",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[-2,-3]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": -0.125
+        }
+      }
+    },
+    {
+      "id": "power-zero-negative-exponent",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[0,-1]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_POWER",
+            "message": "Zero cannot have a negative exponent, and negative bases require an integer exponent."
+          }
+        }
+      }
+    },
+    {
+      "id": "power-negative-zero-negative-exponent",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[-0,-1]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_POWER",
+            "message": "Zero cannot have a negative exponent, and negative bases require an integer exponent."
+          }
+        }
+      }
+    },
+    {
+      "id": "power-negative-base-fractional-exponent",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[-8,0.3333333333333333]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_POWER",
+            "message": "Zero cannot have a negative exponent, and negative bases require an integer exponent."
+          }
+        }
+      }
+    },
+    {
+      "id": "power-overflow",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[1e308,2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NON_FINITE_RESULT",
+            "message": "Calculation result is outside the finite number range."
+          }
+        }
+      }
+    },
+    {
+      "id": "sqrt-positive",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[9]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 3
+        }
+      }
+    },
+    {
+      "id": "sqrt-zero",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[0]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0
+        }
+      }
+    },
+    {
+      "id": "sqrt-negative-zero",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[-0]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0
+        }
+      },
+      "expectedDisplay": "0"
+    },
+    {
+      "id": "sqrt-irrational",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[2]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 1.4142135623730951
+        }
+      },
+      "expectedDisplay": "1.41421356237"
+    },
+    {
+      "id": "sqrt-negative",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[-1]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NEGATIVE_SQRT",
+            "message": "Cannot take the square root of a negative number."
+          }
+        }
+      }
+    },
+    {
+      "id": "percentage-of-value",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[15,200]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 30
+        }
+      }
+    },
+    {
+      "id": "percentage-zero",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[0,200]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 0
+        }
+      }
+    },
+    {
+      "id": "percentage-negative",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[-10,200]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": -20
+        }
+      }
+    },
+    {
+      "id": "percentage-fractional",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[12.5,80]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 10
+        }
+      }
+    },
+    {
+      "id": "percentage-above-hundred",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[200,50]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 100
+        }
+      }
+    },
+    {
+      "id": "percentage-large-finite",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[50,1e308]}"
+      },
+      "expected": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "result": 5e+307
+        }
+      }
+    },
+    {
+      "id": "percentage-overflow",
+      "milestone": "advanced",
+      "preview": true,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[1000,1e308]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "NON_FINITE_RESULT",
+            "message": "Calculation result is outside the finite number range."
+          }
+        }
+      }
+    },
+    {
+      "id": "sqrt-missing-operand",
+      "milestone": "advanced",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "sqrt-extra-operand",
+      "milestone": "advanced",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"sqrt\",\"operands\":[9,4]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "power-missing-exponent",
+      "milestone": "advanced",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"power\",\"operands\":[2]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    },
+    {
+      "id": "percentage-missing-base",
+      "milestone": "advanced",
+      "preview": false,
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/calculate",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"operation\":\"percentage\",\"operands\":[15]}"
+      },
+      "expected": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Provide one JSON object with an operation and the required finite numeric operands."
+          }
+        }
+      }
+    }
+  ]
+}

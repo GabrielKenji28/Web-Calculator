@@ -1,0 +1,12 @@
+# Normalise line endings.
+#
+# core.autocrlf=true would otherwise hand the working tree CRLF files, which
+# gofmt reports as unformatted and which make diffs noisy across machines.
+# Checking out LF everywhere keeps `gofmt -l` clean on Windows without asking
+# each contributor to change a global Git setting.
+* text=auto eol=lf
+
+# Binary files Git must never touch.
+*.png binary
+*.jpg binary
+*.ico binary
