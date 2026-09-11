@@ -11,9 +11,7 @@ import (
 	"github.com/GabrielKenji28/Web-Calculator/backend/internal/contracttest"
 )
 
-// negativeZero is the operand several contract cases depend on. The Go literal
-// -0 is a constant expression that evaluates to positive zero, so the sign has
-// to be set explicitly.
+// The Go literal -0 constant-folds to positive zero, so the sign is set explicitly.
 var negativeZero = math.Copysign(0, -1)
 
 func TestCalculate(t *testing.T) {
@@ -118,9 +116,6 @@ func TestCalculate(t *testing.T) {
 	}
 }
 
-// TestSquareRootOfNegativeZeroKeepsItsSign documents the division of labour
-// behind the sqrt-negative-zero fixture: IEEE 754 says sqrt(-0) is -0, so calc
-// returns it unchanged and the HTTP layer normalises it for presentation.
 func TestSquareRootOfNegativeZeroKeepsItsSign(t *testing.T) {
 	t.Parallel()
 
@@ -133,10 +128,6 @@ func TestSquareRootOfNegativeZeroKeepsItsSign(t *testing.T) {
 	}
 }
 
-// TestCalculateNeverReturnsNonFiniteResults pins the invariant the HTTP layer
-// depends on: a nil error means the value can be encoded as JSON. It sweeps
-// every registered operation over extreme operands instead of naming the
-// combinations, so an operation added later is covered without a new test.
 func TestCalculateNeverReturnsNonFiniteResults(t *testing.T) {
 	t.Parallel()
 
@@ -164,10 +155,6 @@ func TestCalculateNeverReturnsNonFiniteResults(t *testing.T) {
 	}
 }
 
-// TestRegisteredOperationsMatchContract keeps the registry and the shared
-// contract in step in both directions: an operation the contract publishes but
-// nobody registered, and one registered that the contract never described, both
-// fail here.
 func TestRegisteredOperationsMatchContract(t *testing.T) {
 	t.Parallel()
 
@@ -186,8 +173,6 @@ func TestRegisteredOperationsMatchContract(t *testing.T) {
 	}
 }
 
-// TestOperationArityMatchesContract checks each registered operation against the
-// arity the contract publishes, without exposing the internals of the registry.
 func TestOperationArityMatchesContract(t *testing.T) {
 	t.Parallel()
 
@@ -214,8 +199,6 @@ func TestOperationArityMatchesContract(t *testing.T) {
 	}
 }
 
-// onesSlice returns count operands of value one, which every operation accepts
-// without an arithmetic error.
 func onesSlice(count int) []float64 {
 	operands := make([]float64, count)
 	for i := range operands {

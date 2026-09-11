@@ -9,10 +9,8 @@ import (
 	"strings"
 )
 
-// WithStaticFiles serves a frontend build alongside api. The directory must
-// contain index.html. API and health requests always use the original router,
-// including its 404 and 405 responses. There is no client-side route fallback:
-// this calculator has a single page, and missing assets should return 404.
+// No client-side route fallback: this is a single-page app, and missing
+// assets return 404 rather than index.html.
 func WithStaticFiles(api http.Handler, directory string) (http.Handler, error) {
 	files := os.DirFS(directory)
 	index, err := fs.Stat(files, "index.html")
@@ -31,7 +29,6 @@ func WithStaticFiles(api http.Handler, directory string) (http.Handler, error) {
 			return
 		}
 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
-			// Preserve the API-only router's response for unsupported routes.
 			api.ServeHTTP(w, r)
 			return
 		}
@@ -39,8 +36,7 @@ func WithStaticFiles(api http.Handler, directory string) (http.Handler, error) {
 	}), nil
 }
 
-// staticFiles prevents directory listings while keeping net/http's normal
-// index.html handling, content types, conditional requests, and HEAD support.
+// Prevents directory listings; otherwise defers to net/http's normal handling.
 type staticFiles struct {
 	fs.FS
 }

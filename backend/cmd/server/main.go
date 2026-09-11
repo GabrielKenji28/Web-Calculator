@@ -21,13 +21,9 @@ import (
 )
 
 const (
-	// envPort names the environment variable that sets the default port.
-	envPort = "PORT"
-	// envStaticDir opts into serving the built frontend from the same origin.
-	envStaticDir = "STATIC_DIR"
-	// defaultPort is used when neither the flag nor the environment sets one.
-	defaultPort = 8080
-	// defaultShutdownTimeout bounds how long in-flight requests may finish.
+	envPort                = "PORT"
+	envStaticDir           = "STATIC_DIR"
+	defaultPort            = 8080
 	defaultShutdownTimeout = 10 * time.Second
 
 	readHeaderTimeout = 5 * time.Second
@@ -46,14 +42,12 @@ func main() {
 	}
 }
 
-// config is the resolved runtime configuration.
 type config struct {
 	port            int
 	staticDir       string
 	shutdownTimeout time.Duration
 }
 
-// run parses the configuration, starts listening, and serves until ctx is done.
 func run(ctx context.Context, args []string, getenv func(string) string, out io.Writer) error {
 	cfg, err := parseConfig(args, getenv, out)
 	if err != nil {
@@ -81,8 +75,6 @@ func run(ctx context.Context, args []string, getenv func(string) string, out io.
 	return serve(ctx, newHTTPServer(router), listener, cfg.shutdownTimeout, logger)
 }
 
-// parseConfig resolves the port from the flags, then the environment, then the
-// default, and validates the result.
 func parseConfig(args []string, getenv func(string) string, out io.Writer) (config, error) {
 	port := defaultPort
 	if raw := getenv(envPort); raw != "" {
@@ -110,14 +102,10 @@ func parseConfig(args []string, getenv func(string) string, out io.Writer) (conf
 	return config{port: *portFlag, staticDir: *staticDirFlag, shutdownTimeout: *shutdownFlag}, nil
 }
 
-// validPort reports whether port is a usable TCP port. Zero is allowed: it asks
-// the kernel for a free one.
 func validPort(port int) bool {
 	return port >= 0 && port <= 65535
 }
 
-// newHTTPServer returns a server with timeouts set, so that a slow or stalled
-// client cannot hold a connection open indefinitely.
 func newHTTPServer(h http.Handler) *http.Server {
 	return &http.Server{
 		Handler:           h,
@@ -128,11 +116,7 @@ func newHTTPServer(h http.Handler) *http.Server {
 	}
 }
 
-// serve runs srv on listener until it fails or ctx is cancelled, then shuts it
-// down gracefully within shutdownTimeout.
 func serve(ctx context.Context, srv *http.Server, listener net.Listener, shutdownTimeout time.Duration, logger *slog.Logger) error {
-	// Buffered so that the serving goroutine always exits, even when this
-	// function returns through the ctx branch first.
 	serveErr := make(chan error, 1)
 	go func() { serveErr <- srv.Serve(listener) }()
 
@@ -146,8 +130,8 @@ func serve(ctx context.Context, srv *http.Server, listener net.Listener, shutdow
 	}
 
 	logger.Info("shutting down", "timeout", shutdownTimeout.String())
-	// ctx is already cancelled, so the shutdown deadline is derived from a live
-	// context that only carries its values.
+	// context.WithoutCancel: ctx is already done here, so deriving the shutdown
+	// deadline directly from it would expire immediately.
 	shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), shutdownTimeout)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {

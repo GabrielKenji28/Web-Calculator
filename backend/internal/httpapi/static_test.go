@@ -66,8 +66,6 @@ func TestStaticFiles(t *testing.T) {
 	}
 }
 
-// The production composition must preserve every frozen response, including
-// validation errors and the test-only injected server fault.
 func TestStaticFilesPreserveContract(t *testing.T) {
 	t.Parallel()
 

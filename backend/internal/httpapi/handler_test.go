@@ -16,23 +16,14 @@ import (
 	"github.com/GabrielKenji28/Web-Calculator/backend/internal/contracttest"
 )
 
-// Expected case counts per milestone of contract/fixtures.json. They are
-// spelled out so that a case added to or dropped from the contract fails here
-// instead of quietly going unasserted.
 const (
 	wantCoreCases     = 52
 	wantAdvancedCases = 28
-	// wantInjectedCases is the number of cases a replay cannot reach because
-	// they need a fault injected behind the handler.
 	wantInjectedCases = 1
 )
 
-// faultCaseID is the one case whose response requires an injected fault, and so
-// cannot be produced by replaying its request. TestInjectedServerFault covers it.
 const faultCaseID = "unexpected-server-error"
 
-// TestContractFixtures replays every fixture of every milestone against the
-// real router.
 func TestContractFixtures(t *testing.T) {
 	t.Parallel()
 
@@ -56,8 +47,6 @@ func TestContractFixtures(t *testing.T) {
 
 		for _, tc := range cases {
 			if tc.TestFault != "" {
-				// A fault is test-only metadata: no request content may trigger
-				// it, so this case is unreachable by replay.
 				injected++
 				continue
 			}
@@ -73,8 +62,6 @@ func TestContractFixtures(t *testing.T) {
 		}
 	}
 
-	// Every case in the file has to be accounted for, not just every case of a
-	// milestone this test happens to know about.
 	if replayed+injected != len(fixtures.Cases) {
 		t.Fatalf("replayed %d + injected %d cases, want all %d contract cases; a milestone is unaccounted for", replayed, injected, len(fixtures.Cases))
 	}
@@ -84,8 +71,6 @@ func TestContractFixtures(t *testing.T) {
 	t.Logf("replayed %d contract cases across %d milestones, %d covered by fault injection", replayed, len(milestones), injected)
 }
 
-// TestInjectedServerFault covers the one 500 in the contract. The fault reaches
-// the handler through the injected calculator, never through the request.
 func TestInjectedServerFault(t *testing.T) {
 	t.Parallel()
 
@@ -95,8 +80,6 @@ func TestInjectedServerFault(t *testing.T) {
 		t.Fatalf("fixture %q no longer carries a testFault", faultCaseID)
 	}
 
-	// The fault case sends the same bytes as a successful request: only the
-	// injected failure separates 500 from 200.
 	if success := fixtures.CaseByID(t, "add-positive"); success.Request.Body != tc.Request.Body {
 		t.Fatalf("fixture %q body = %q, want the same bytes as add-positive %q", tc.ID, tc.Request.Body, success.Request.Body)
 	}
@@ -107,9 +90,6 @@ func TestInjectedServerFault(t *testing.T) {
 	assertResponse(t, rec, tc.Expected)
 }
 
-// TestFaultMetadataIsNotTransported guards the rule that fault metadata never
-// travels over HTTP: as a body field it is simply an unknown field, and as a
-// header or query parameter it is ignored.
 func TestFaultMetadataIsNotTransported(t *testing.T) {
 	t.Parallel()
 
@@ -169,15 +149,10 @@ func TestFaultMetadataIsNotTransported(t *testing.T) {
 	}
 }
 
-// TestNegativeZeroIsWrittenAsPositiveZero checks the raw bytes of every fixture
-// whose result is a negative zero before normalisation. The parsed comparison
-// used by the fixture replay cannot catch this: -0 and 0 are equal floats, so
-// only the encoded body tells them apart.
 func TestNegativeZeroIsWrittenAsPositiveZero(t *testing.T) {
 	t.Parallel()
 
-	// normalize-negative-zero multiplies -0 by 2; sqrt-negative-zero relies on
-	// IEEE 754 sqrt(-0) being -0. Both must reach the client as 0.
+	// -0 and 0 are equal floats, so only the raw encoded body catches this.
 	caseIDs := []string{"normalize-negative-zero", "sqrt-negative-zero"}
 
 	fixtures := contracttest.Load(t)
@@ -197,9 +172,6 @@ func TestNegativeZeroIsWrittenAsPositiveZero(t *testing.T) {
 	}
 }
 
-// TestCalculatorContractViolations covers the handler's defences against a
-// calculator that breaks calc.Service's guarantees. Production code cannot reach
-// these branches, which is exactly why they need an injected calculator.
 func TestCalculatorContractViolations(t *testing.T) {
 	t.Parallel()
 
@@ -263,8 +235,6 @@ func TestCalculatorContractViolations(t *testing.T) {
 	}
 }
 
-// TestOversizedBodyIsRejected checks that a body beyond the read cap is a
-// malformed request rather than a crash or a hang.
 func TestOversizedBodyIsRejected(t *testing.T) {
 	t.Parallel()
 
@@ -282,8 +252,6 @@ func TestOversizedBodyIsRejected(t *testing.T) {
 	}
 }
 
-// TestRoutingRejectsUnknownRoutes documents the two responses the contract does
-// not pin: a wrong method and an unknown path are answered by net/http itself.
 func TestRoutingRejectsUnknownRoutes(t *testing.T) {
 	t.Parallel()
 
@@ -320,8 +288,6 @@ func TestRoutingRejectsUnknownRoutes(t *testing.T) {
 	}
 }
 
-// TestHeadHealth checks that the health probe also answers HEAD, which net/http
-// derives from the GET route.
 func TestHeadHealth(t *testing.T) {
 	t.Parallel()
 
@@ -337,8 +303,6 @@ func TestHeadHealth(t *testing.T) {
 	}
 }
 
-// TestErrorCatalogMatchesContract fails on any drift between the messages this
-// package sends and the ones the contract freezes.
 func TestErrorCatalogMatchesContract(t *testing.T) {
 	t.Parallel()
 
@@ -360,7 +324,6 @@ func TestErrorCatalogMatchesContract(t *testing.T) {
 	}
 }
 
-// TestResponseForError pins the mapping from domain error to status and code.
 func TestResponseForError(t *testing.T) {
 	t.Parallel()
 
@@ -393,8 +356,6 @@ func TestResponseForError(t *testing.T) {
 	}
 }
 
-// TestMessageForUnknownCode keeps the fallback conservative: an unmapped code
-// must not produce an empty message.
 func TestMessageForUnknownCode(t *testing.T) {
 	t.Parallel()
 
@@ -403,8 +364,6 @@ func TestMessageForUnknownCode(t *testing.T) {
 	}
 }
 
-// TestDecodeOperand documents the operand rules in isolation, including the
-// distinctions a []float64 field would erase.
 func TestDecodeOperand(t *testing.T) {
 	t.Parallel()
 
@@ -429,8 +388,6 @@ func TestDecodeOperand(t *testing.T) {
 		{name: "object", literal: `{}`, wantOK: false},
 		{name: "array", literal: `[]`, wantOK: false},
 		{name: "empty", literal: ``, wantOK: false},
-		// The decoder only ever hands over well-formed JSON values, so these
-		// two cover the guard rather than a reachable request.
 		{name: "lone minus sign", literal: `-`, wantOK: false},
 		{name: "malformed number", literal: `1.2.3`, wantOK: false},
 		{name: "positive overflow", literal: `1e309`, wantOK: false},
@@ -457,8 +414,6 @@ func TestDecodeOperand(t *testing.T) {
 	}
 }
 
-// TestNewRouterAcceptsNilLogger checks the documented fallback: callers that do
-// not care about logging still get a working service rather than a nil panic.
 func TestNewRouterAcceptsNilLogger(t *testing.T) {
 	t.Parallel()
 
@@ -474,9 +429,6 @@ func TestNewRouterAcceptsNilLogger(t *testing.T) {
 	}
 }
 
-// TestRespondFallsBackWhenEncodingFails covers the last line of defence: if a
-// payload ever fails to marshal, the client still receives the contract error
-// envelope rather than an empty or half-written body.
 func TestRespondFallsBackWhenEncodingFails(t *testing.T) {
 	t.Parallel()
 
@@ -497,15 +449,11 @@ func TestRespondFallsBackWhenEncodingFails(t *testing.T) {
 	}
 }
 
-// newTestRouter builds the real router around an injected calculator and
-// discards its logs.
 func newTestRouter(tb testing.TB, c Calculator) http.Handler {
 	tb.Helper()
 	return NewRouter(c, slog.New(slog.DiscardHandler))
 }
 
-// fixtureRequest turns a contract case into an HTTP request, sending the body
-// bytes verbatim: several cases are deliberately invalid JSON.
 func fixtureRequest(tc contracttest.Case) *http.Request {
 	req := httptest.NewRequest(tc.Request.Method, tc.Request.Path, strings.NewReader(tc.Request.Body))
 	for name, value := range tc.Request.Headers {
@@ -514,9 +462,6 @@ func fixtureRequest(tc contracttest.Case) *http.Request {
 	return req
 }
 
-// assertResponse compares a recorded response with a contract expectation:
-// status and headers exactly, and the body as parsed JSON, because the fixture
-// file is pretty-printed while the handler writes compact JSON.
 func assertResponse(tb testing.TB, rec *httptest.ResponseRecorder, want contracttest.Expected) {
 	tb.Helper()
 
@@ -536,8 +481,6 @@ func assertResponse(tb testing.TB, rec *httptest.ResponseRecorder, want contract
 	}
 }
 
-// parseJSON unmarshals into interface values so that two encodings of the same
-// document compare equal.
 func parseJSON(tb testing.TB, data []byte) any {
 	tb.Helper()
 
@@ -548,13 +491,10 @@ func parseJSON(tb testing.TB, data []byte) any {
 	return value
 }
 
-// fmtWrap wraps err the way calc.Service annotates operand-count failures.
 func fmtWrap(err error) error {
 	return errors.Join(errors.New("context"), err)
 }
 
-// failingCalculator always fails. It stands in for a fault that no request
-// content can produce.
 type failingCalculator struct {
 	err error
 }
@@ -563,8 +503,6 @@ func (c failingCalculator) Calculate(context.Context, string, []float64) (float6
 	return 0, c.err
 }
 
-// fixedCalculator returns a value the real calculator never would, so that the
-// handler's own guards can be exercised.
 type fixedCalculator struct {
 	result float64
 }

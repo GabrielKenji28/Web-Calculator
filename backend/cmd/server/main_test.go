@@ -107,7 +107,6 @@ func TestParseConfig(t *testing.T) {
 	}
 }
 
-// TestRunHelpExitsCleanly checks that -h prints usage and is not an error.
 func TestRunHelpExitsCleanly(t *testing.T) {
 	t.Parallel()
 
@@ -120,7 +119,6 @@ func TestRunHelpExitsCleanly(t *testing.T) {
 	}
 }
 
-// TestRunRejectsInvalidConfig checks that a bad configuration stops startup.
 func TestRunRejectsInvalidConfig(t *testing.T) {
 	t.Parallel()
 
@@ -157,8 +155,6 @@ func TestNewHTTPServerSetsTimeouts(t *testing.T) {
 	}
 }
 
-// TestServeShutsDownGracefully serves real requests on an ephemeral port and
-// then checks that cancelling the context stops the server cleanly.
 func TestServeShutsDownGracefully(t *testing.T) {
 	t.Parallel()
 
@@ -205,16 +201,14 @@ func TestServeShutsDownGracefully(t *testing.T) {
 	}
 }
 
-// TestRunServesUntilCancelled exercises the whole startup path: parse the
-// flags, bind a port, serve, and shut down when the context ends.
 func TestRunServesUntilCancelled(t *testing.T) {
 	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Cancelling on the "listening" log line means the test waits for the real
-	// readiness signal instead of sleeping or guessing the ephemeral port.
+	// Cancels on the "listening" log line rather than sleeping or guessing the
+	// ephemeral port.
 	out := &cancelOnListening{cancel: cancel}
 	directory := t.TempDir()
 	if err := os.WriteFile(filepath.Join(directory, "index.html"), []byte("<title>Calculator</title>"), 0o644); err != nil {
@@ -240,8 +234,6 @@ func TestRunServesUntilCancelled(t *testing.T) {
 	}
 }
 
-// cancelOnListening is a log sink that cancels a context once the server
-// reports that it is listening.
 type cancelOnListening struct {
 	cancel context.CancelFunc
 
@@ -266,8 +258,6 @@ func (c *cancelOnListening) String() string {
 	return c.log.String()
 }
 
-// TestServeReportsListenerFailure checks the other exit path: the listener
-// failing rather than the context being cancelled.
 func TestServeReportsListenerFailure(t *testing.T) {
 	t.Parallel()
 
