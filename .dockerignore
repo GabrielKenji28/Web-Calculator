@@ -1,0 +1,32 @@
+# Private working files
+PLAN.md
+prompts.md
+decisions.md
+Explanations.md
+CLAUDE.md
+AGENTS.md
+KICKOFF_PROMPT.md
+
+# Documentation is not needed at runtime
+README.md
+docs/
+
+# Version control and local agent artifacts
+.git/
+.gitattributes
+.gitignore
+.claude/
+.tools/
+.plans/
+.worktrees/
+
+# Build outputs and dependencies, rebuilt inside the image
+**/node_modules/
+**/dist/
+**/coverage/
+**/.vite/
+**/*.out
+**/*.exe
+**/*.test
+*.log
+.env
