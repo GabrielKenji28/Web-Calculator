@@ -1,6 +1,7 @@
 import {
   caseById,
   errorEnvelopeOf,
+  parseCalculateBody,
   previewCases,
   successResultOf,
   type FixtureCase,
@@ -38,26 +39,10 @@ interface ParsedRequestBody {
 }
 
 export function parseFixtureRequestBody(body: string): ParsedRequestBody | undefined {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(body);
-  } catch {
-    return undefined;
-  }
-  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return undefined;
+  const call = parseCalculateBody(body);
+  if (call === undefined) return undefined;
 
-  const record = parsed as Record<string, unknown>;
-  const operation = record['operation'];
-  const operands = record['operands'];
-  if (typeof operation !== 'string' || !Array.isArray(operands)) return undefined;
-
-  const numbers: number[] = [];
-  for (const operand of operands) {
-    if (typeof operand !== 'number' || !Number.isFinite(operand)) return undefined;
-    numbers.push(operand);
-  }
-
-  const request: CalculateRequest = { operation, operands: numbers };
+  const request: CalculateRequest = { operation: call.operation, operands: [...call.operands] };
   return { request, canonical: serializeCalculateRequest(request) };
 }
 

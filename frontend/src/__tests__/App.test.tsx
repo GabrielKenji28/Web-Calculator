@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from '../App';
@@ -1179,12 +1179,16 @@ describe('keyboard and focus', () => {
     for (const name of names) {
       expect(screen.getByRole('button', { name }).tagName, name).toBe('BUTTON');
     }
-    expect(screen.getAllByRole('button')).toHaveLength(KEYPAD_KEYS.length);
-    expect(screen.getAllByRole('button')).toHaveLength(names.length);
+    const keypad = screen.getByRole('group', { name: 'Calculator keypad' });
+    expect(within(keypad).getAllByRole('button')).toHaveLength(KEYPAD_KEYS.length);
+    expect(within(keypad).getAllByRole('button')).toHaveLength(names.length);
+
+    // The keypad is every button on the page bar the header's Help trigger.
+    expect(screen.getAllByRole('button')).toHaveLength(KEYPAD_KEYS.length + 1);
+    expect(screen.getByRole('button', { name: 'Help' })).toBeInTheDocument();
     for (const button of screen.getAllByRole('button')) {
       expect(button).toHaveAccessibleName();
     }
-    expect(screen.getByRole('group', { name: 'Calculator keypad' })).toBeInTheDocument();
   });
 });
 

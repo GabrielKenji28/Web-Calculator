@@ -215,3 +215,31 @@ export function errorEnvelopeOf(
   if (typeof code !== 'string' || typeof message !== 'string') return undefined;
   return { code, message };
 }
+
+export interface FixtureCall {
+  readonly operation: string;
+  readonly operands: readonly number[];
+}
+
+export function parseCalculateBody(body: string): FixtureCall | undefined {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body);
+  } catch {
+    return undefined;
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return undefined;
+
+  const record = parsed as Record<string, unknown>;
+  const operation = record['operation'];
+  const operands = record['operands'];
+  if (typeof operation !== 'string' || !Array.isArray(operands)) return undefined;
+
+  const numbers: number[] = [];
+  for (const operand of operands) {
+    if (typeof operand !== 'number' || !Number.isFinite(operand)) return undefined;
+    numbers.push(operand);
+  }
+
+  return { operation, operands: numbers };
+}
