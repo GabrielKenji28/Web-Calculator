@@ -1,0 +1,13 @@
+services:
+  calculator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: web-calculator:local
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      STATIC_DIR: /app/static
+    restart: unless-stopped
+    stop_grace_period: 15s
